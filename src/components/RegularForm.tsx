@@ -1,4 +1,5 @@
-// import { useState, ChangeEvent, FormEvent } from "react";
+import { ErrorMessage } from "@hookform/error-message";
+import { EventHandler } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 interface FormData {
   username: string;
@@ -7,77 +8,95 @@ interface FormData {
 }
 
 function RegularForm() {
-  // const [formData, setFormData] = useState<FormData>({
-  //   username: "",
-  //   email: "",
-  //   password: "",
-  // });
-
-  const { register, handleSubmit, formState:{errors} } = useForm<FormData>();
-  const onSubmit: SubmitHandler<FormData> = (data) =>
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    criteriaMode: "all",
+  });
+  const onSubmit: SubmitHandler<FormData> = (data) => 
     alert(JSON.stringify(data));
 
-  // const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   const { name, value } = e.target;
-  //   setFormData({
-  //     ...formData,
-  //     [name]: value,
-  //   });
-  // };
-
-  // const handleSubmi = (e: FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   alert(JSON.stringify(formData));
-  // };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <h1>Change Me To React Hook Form</h1>
       <div>
         <input
-          {...register("username", { required: true, minLength: 2 })}
+          {...register("username", {
+            required: "This field is required",
+            minLength: 2,
+          })}
           type="text"
           id="username"
           name="username"
           placeholder="Enter UserName"
-          // value={formData.username}
-          // onChange={handleChange}
         />
         <p>{errors.username?.message}</p>
       </div>
       <div>
         <input
           {...register("email", {
-            required: true,
-            pattern: /^[a-zA-Z0-9-.]+@[a-zA-Z0-9-.]+(?:\[a-zA-Z0-9]+)*$/,
+            required: "This field is required",
+            pattern: {
+              value: /^[a-zA-Z0-9-.]+@[a-zA-Z0-9-.]+(?:\[a-zA-Z0-9]+)*$/,
+              message: "Please enter a valid email address",
+            },
           })}
           type="text"
           id="email"
           name="email"
           placeholder="Enter Email"
-          // value={formData.email}
-          // onChange={handleChange}
         />
         <p>{errors.email?.message}</p>
       </div>
       <div>
         <input
           {...register("password", {
-            required: true,
-            minLength: 8,
-            maxLength: 20,
-            pattern:
-              /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$%^&*()_+-])[0-9A-Za-z@#$%^&*()_+-]/,
+            required: "This field is required",
+            minLength: {
+              value: 8,
+              message: "Password must be at least 8 characters",
+            },
+            maxLength: {
+              value: 20,
+              message: "Password cen be max 20 characters",
+            },
+            validate: {
+              hasUppercase: (value) =>
+                /[A-Z]/.test(value) ||
+                "Password must contain at least one uppercase letter",
+              hasLowercase: (value) =>
+                /[a-z]/.test(value) ||
+                "Password must contain at least one lowercase letter",
+              hasNumber: (value) =>
+                /\d/.test(value) || "Password must contain at least one number",
+              hasSpecialCharacter: (value) =>
+                /[@#$%^&+=]/.test(value) ||
+                "Password must contain at least one special character (@#$%^&+=)",
+            },
           })}
           type="text"
           id="password"
           name="password"
           placeholder="Enter Password"
-          // value={formData.password}
-          // onChange={handleChange}
         />
-        <p>{errors.password?.message}</p>
+        <ErrorMessage
+          errors={errors}
+          name="password"
+          render={({ messages }) =>
+            messages &&
+            Object.entries(messages).map(([type, message]) => {
+              console.log("76h67jh67");
+
+              return <p key={type}>{message}</p>;
+            })
+          }
+        />
+        {/* <p>{errors.password?.message}</p> */}
       </div>
+
       <button type="submit">Submit</button>
     </form>
   );
